@@ -1,0 +1,12 @@
+org.bouncycastle.jsse
+org.bouncycastle.jsse.java.security
+org.bouncycastle.jsse.provider
+org.bouncycastle.jsse.provider.test
+org.bouncycastle.jsse.util
+org.bouncycastle.tls
+org.bouncycastle.tls.crypto
+org.bouncycastle.tls.crypto.impl
+org.bouncycastle.tls.crypto.impl.bc
+org.bouncycastle.tls.crypto.impl.jcajce
+org.bouncycastle.tls.crypto.impl.jcajce.srp
+org.bouncycastle.tls.test

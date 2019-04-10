@@ -1,0 +1,182 @@
+[
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "caCertHash",
+				"type": "address"
+			},
+			{
+				"name": "caCertificateValue",
+				"type": "bytes"
+			},
+			{
+				"name": "requestSignature",
+				"type": "bytes"
+			}
+		],
+		"name": "addCACertificate",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "certHash",
+				"type": "address"
+			},
+			{
+				"name": "certificateValue",
+				"type": "bytes"
+			}
+		],
+		"name": "addCertificate",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "certHash",
+				"type": "address"
+			},
+			{
+				"name": "requestSignature",
+				"type": "bytes"
+			}
+		],
+		"name": "revokeCertificate",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "caCertHash",
+				"type": "address"
+			},
+			{
+				"name": "requestSignature",
+				"type": "bytes"
+			}
+		],
+		"name": "untrustCaCertificate",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "retrieveCaCertificateCount",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "caCertHash",
+				"type": "address"
+			}
+		],
+		"name": "retrieveCaCertificateStatus",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "caCertHash",
+				"type": "address"
+			}
+		],
+		"name": "retrieveCaCertificateValue",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bytes"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "certHash",
+				"type": "address"
+			}
+		],
+		"name": "retrieveCertificateStatus",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "certHash",
+				"type": "address"
+			}
+		],
+		"name": "retrieveCertificateValue",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bytes"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "retrieveTlsCertificateCount",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	}
+]

@@ -132,4 +132,14 @@ public class ExtensionType
      * RFC 5746 3.2.
      */
     public static final int renegotiation_info = 0xff01;
+
+
+    /*
+     * Custom added for CertLedger
+     */
+
+    public static final int client_block = 100;
+    public static final int freshness_tolerence = 101;
+    public static final int selected_block = 102;
+    public static final int proof = 103;
 }

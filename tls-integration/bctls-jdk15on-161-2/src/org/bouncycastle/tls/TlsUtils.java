@@ -7,10 +7,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import certledgertlstest.BlockChainClientParameters;
+import certledgertlstest.ProofValidatorConsoleRunner;
 import org.bouncycastle.asn1.ASN1Encoding;
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1Integer;
@@ -25,6 +29,8 @@ import org.bouncycastle.asn1.oiw.OIWObjectIdentifiers;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.x509.X509ObjectIdentifiers;
 import org.bouncycastle.asn1.x9.X9ObjectIdentifiers;
+import org.bouncycastle.crypto.tls.ExtensionType;
+import org.bouncycastle.jcajce.provider.asymmetric.x509.CertificateFactory;
 import org.bouncycastle.tls.crypto.TlsCertificate;
 import org.bouncycastle.tls.crypto.TlsCipher;
 import org.bouncycastle.tls.crypto.TlsCrypto;
@@ -34,6 +40,7 @@ import org.bouncycastle.tls.crypto.TlsSecret;
 import org.bouncycastle.tls.crypto.TlsStreamSigner;
 import org.bouncycastle.tls.crypto.TlsStreamVerifier;
 import org.bouncycastle.tls.crypto.TlsVerifier;
+import org.bouncycastle.tls.crypto.impl.bc.BcTlsCertificate;
 import org.bouncycastle.util.Arrays;
 import org.bouncycastle.util.Integers;
 import org.bouncycastle.util.Shorts;
@@ -561,6 +568,14 @@ public class TlsUtils
 
         byte[] encoding = new byte[2];
         writeUint16(uint, encoding, 0);
+        return encoding;
+    }
+
+    public static byte[] encodeUint64(long uint) throws IOException
+    {
+        checkUint64(uint);
+        byte[] encoding = new byte[8];
+        writeUint64(uint, encoding, 0);
         return encoding;
     }
 
@@ -3899,6 +3914,43 @@ public class TlsUtils
         ByteArrayOutputStream endPointHash = new ByteArrayOutputStream();
 
         Certificate serverCertificate = Certificate.parse(clientContext, buf, endPointHash);
+
+
+        /*                                    CertLedger additions start                                  */
+        /* Read the proof from the extension and validate it                                              */
+        Hashtable serverCertificateExtensions = TlsProtocol.readExtensions(buf);
+        try {
+            TlsCertificate certificate = serverCertificate.getCertificateList()[0];
+
+
+
+
+            byte[] certhash = MessageDigest.getInstance("SHA1").digest(certificate.getEncoded());
+
+            //Search within the proof with the hash of the certificate. If the certificate is in the proof then its revocation status will be returned.
+
+            long revocationStatus = ProofValidatorConsoleRunner.validate(BlockChainClientParameters.selectedBlock, (byte[]) serverCertificateExtensions.get(TlsExtensionsUtils.EXT_proof),certhash);
+
+            //Check whether the certificate is revoked
+            if (revocationStatus != 1l)
+                 throw new TlsFatalAlert(AlertDescription.certificate_revoked);
+
+            org.bouncycastle.asn1.x509.Certificate decodedCert = BcTlsCertificate.parseCertificate(certificate.getEncoded());
+
+            //Check whether the certificate is expired
+            if (decodedCert.getEndDate().getDate().before(new Date()))
+                throw new TlsFatalAlert(AlertDescription.certificate_expired);
+
+           //Check whether the certificates start date is in the future
+            if (decodedCert.getStartDate().getDate().after(new Date()))
+                throw new TlsFatalAlert(AlertDescription.certificate_unknown);
+
+
+        }catch (Exception e){
+            throw new RuntimeException("Error in Proof Validation",e);
+        }
+
+        /*                                    CertLedger additions end                                  */
 
         TlsProtocol.assertEmpty(buf);
 

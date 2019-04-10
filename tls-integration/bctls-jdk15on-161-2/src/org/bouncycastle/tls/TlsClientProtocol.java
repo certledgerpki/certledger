@@ -8,6 +8,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import certledgertlstest.BlockChainClientParameters;
 import org.bouncycastle.tls.crypto.TlsStreamSigner;
 import org.bouncycastle.util.Arrays;
 
@@ -988,6 +989,7 @@ public class TlsClientProtocol
             SecurityParameters saved = tlsClientContext.getSecurityParametersConnection();
 
             this.clientExtensions.put(EXT_RenegotiationInfo, createRenegotiationInfo(saved.getLocalVerifyData()));
+
         }
         else
         {
@@ -1022,7 +1024,15 @@ public class TlsClientProtocol
             this.offeredCipherSuites = Arrays.append(offeredCipherSuites, CipherSuite.TLS_FALLBACK_SCSV);
         }
 
+        /*                                    CertLedger additions start                                  */
+        /* Populate the new extensions from the helper class                                              */
 
+        this.clientExtensions.put(EXT_ClientBlock, TlsExtensionsUtils.createExtensionForLongValue(BlockChainClientParameters.clientBlock));//TODO
+        this.clientExtensions.put(EXT_FreshnessTolerence, TlsExtensionsUtils.createExtensionForLongValue(BlockChainClientParameters.freshnessTolerence));//TODO
+        this.clientExtensions.put(EXT_SelectedBlock,new byte[0]);//The extension has to be send with empty values
+        this.clientExtensions.put(EXT_Proof, BlockChainClientParameters.proof);//The extension has to be send with empty values
+
+        /*                                    CertLedger additions end                                   */
 
         HandshakeMessage message = new HandshakeMessage(HandshakeType.client_hello);
 

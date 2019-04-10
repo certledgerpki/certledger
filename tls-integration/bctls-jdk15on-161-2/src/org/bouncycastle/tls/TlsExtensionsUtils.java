@@ -3,6 +3,7 @@ package org.bouncycastle.tls;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -30,6 +31,14 @@ public class TlsExtensionsUtils
     public static final Integer EXT_supported_versions = Integers.valueOf(ExtensionType.supported_versions);
     public static final Integer EXT_truncated_hmac = Integers.valueOf(ExtensionType.truncated_hmac);
     public static final Integer EXT_trusted_ca_keys = Integers.valueOf(ExtensionType.trusted_ca_keys);
+
+    /*                                    CertLedger additions start                                  */
+    /* Define new TLS extensions for CertLedger                                                       */
+    public static final Integer EXT_selected_block = Integers.valueOf(ExtensionType.selected_block);
+    public static final Integer EXT_proof = Integers.valueOf(ExtensionType.proof);
+    public static final Integer EXT_client_block = Integers.valueOf(ExtensionType.client_block);
+    public static final Integer EXT_freshness_tolerence = Integers.valueOf(ExtensionType.freshness_tolerence);
+    /*                                    CertLedger additions end                                  */
 
     public static Hashtable ensureExtensionsInitialised(Hashtable extensions)
     {
@@ -452,6 +461,12 @@ public class TlsExtensionsUtils
         throws IOException
     {
         return TlsUtils.encodeUint8(maxFragmentLength);
+    }
+
+    public static byte[] createExtensionForLongValue(long value)
+            throws IOException
+    {
+        return TlsUtils.encodeUint64(value);
     }
 
     public static byte[] createPaddingExtension(int dataLength)
@@ -953,4 +968,28 @@ public class TlsExtensionsUtils
     {
         return readEmptyExtensionData(extensionData);
     }
+
+    /*                                    CertLedger additions start                                  */
+    /* Additions for CertLedger TLS Extensions                                                        */
+    public static long getClientBlockExtension(Hashtable extensions){
+        byte[] extensionData = TlsUtils.getExtensionData(extensions, EXT_client_block);
+        return extensionData == null ? null : new BigInteger(extensionData).longValue();
+    }
+
+
+    public static long getFreshnessToleranceExtension(Hashtable extensions){
+        byte[] extensionData = TlsUtils.getExtensionData(extensions, EXT_freshness_tolerence);
+        return extensionData == null ? null : new BigInteger(extensionData).longValue();
+    }
+
+    public static void addProofExtension(Hashtable extensions,byte[] proof) {
+        extensions.put(EXT_proof,proof);
+    }
+
+    public static void addSelectedBlockExtension(Hashtable extensions, long selectedblock)
+            throws IOException
+    {
+        extensions.put(EXT_selected_block,createExtensionForLongValue(selectedblock));
+    }
+    /*                                    CertLedger additions end                                  */
 }

@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Vector;
 
+import certledgertlstest.BlockChainServerParameters;
 import org.bouncycastle.util.Arrays;
 
 public class TlsServerProtocol
@@ -501,7 +502,6 @@ public class TlsServerProtocol
         this.clientExtensions = readExtensions(buf);
 
 
- 
         SecurityParameters securityParameters = tlsServerContext.getSecurityParametersHandshake();
 
         tlsServerContext.setClientSupportedVersions(
@@ -889,6 +889,32 @@ public class TlsServerProtocol
 
         applyMaxFragmentLengthExtension();
 
+
+        /*                                    CertLedger additions start                                  */
+        /* Read the blockNumber and  freshnessTolerance extensions and decide which proof will be sent    */
+        BlockChainServerParameters.blockNumber= TlsExtensionsUtils.getClientBlockExtension(clientExtensions);
+        BlockChainServerParameters.freshnessTolerence=TlsExtensionsUtils.getFreshnessToleranceExtension(clientExtensions);
+        System.out.println(BlockChainServerParameters.getStringValue());
+
+
+        if (BlockChainServerParameters.blockNumber > BlockChainServerParameters.serverLastBlock)  {
+
+            if (BlockChainServerParameters.serverLastBlock > (BlockChainServerParameters.blockNumber- BlockChainServerParameters.freshnessTolerence)){
+                BlockChainServerParameters.selectedBlock = BlockChainServerParameters.serverLastBlock;
+            }
+            else
+                BlockChainServerParameters.selectedBlock = -1;
+        }
+        else {
+            if ((BlockChainServerParameters.serverLastBlock - BlockChainServerParameters.freshnessTolerence) < BlockChainServerParameters.blockNumber)
+                BlockChainServerParameters.selectedBlock = BlockChainServerParameters.blockNumber;
+            else
+                BlockChainServerParameters.selectedBlock = -1;
+        }
+
+        TlsExtensionsUtils.addSelectedBlockExtension(serverExtensions, BlockChainServerParameters.selectedBlock);
+
+        /*                                    CertLedger additions end                                        */
 
 
         HandshakeMessage message = new HandshakeMessage(HandshakeType.server_hello);

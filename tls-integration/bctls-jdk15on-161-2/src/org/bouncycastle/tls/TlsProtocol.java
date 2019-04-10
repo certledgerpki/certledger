@@ -11,6 +11,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import certledgertlstest.BlockChainServerParameters;
 import org.bouncycastle.tls.crypto.TlsSecret;
 import org.bouncycastle.util.Arrays;
 import org.bouncycastle.util.Integers;
@@ -19,6 +20,11 @@ public abstract class TlsProtocol
 {
     protected static final Integer EXT_RenegotiationInfo = Integers.valueOf(ExtensionType.renegotiation_info);
     protected static final Integer EXT_SessionTicket = Integers.valueOf(ExtensionType.session_ticket);
+    protected static final Integer EXT_ClientBlock = Integers.valueOf(ExtensionType.client_block);
+    protected static final Integer EXT_FreshnessTolerence = Integers.valueOf(ExtensionType.freshness_tolerence);
+    protected static final Integer EXT_SelectedBlock = Integers.valueOf(ExtensionType.selected_block);
+    protected static final Integer EXT_Proof = Integers.valueOf(ExtensionType.proof);
+
 
     /*
      * Our Connection states
@@ -1292,10 +1298,18 @@ public abstract class TlsProtocol
             certificate = Certificate.EMPTY_CHAIN;
         }
 
+        /*                                    CertLedger additions start                                  */
+        /* Add the merkle proof to the extension                                                          */
+
+        Hashtable certExtensions = new Hashtable();
+        TlsExtensionsUtils.addProofExtension(certExtensions, BlockChainServerParameters.proof);
+
+        /*                                    CertLedger additions end                                  */
+
         HandshakeMessage message = new HandshakeMessage(HandshakeType.certificate);
         certificate.encode(context, message, endPointHash);
+        writeExtensions(message,certExtensions);
         message.writeToRecordStream();
-
         securityParameters.localCertificate = certificate;
     }
 
